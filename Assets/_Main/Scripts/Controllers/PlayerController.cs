@@ -5,21 +5,19 @@ using Unity.VisualScripting;
 
 public class PlayerController : NetworkBehaviour
 {
+    [SerializeField] private GameObject playerUIPrefab; 
+    [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private Transform _groundCheck;
     [SerializeField] private float _moveSpeed = 4.5f;
     [SerializeField] private float _jumpForce = 10f;
-    [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _groundCheckRadius = 0.4f;
-    [SerializeField] private Transform _groundCheck;
-
-    [SerializeField] private bool _isGrounded;
-    [SerializeField] private Rigidbody2D _rb;
-    private Animator _animator;
-    private float _moveDirection;
-    private Collider2D _playerCollider;
 
     private CinemachineVirtualCamera _virtualCamera;
-
-    public GameObject playerUIPrefab; 
+    private Rigidbody2D _rb;
+    private Animator _animator;
+    private Collider2D _playerCollider;
+    private bool _isGrounded;
+    private float _moveDirection;
 
     void Start()
     {
@@ -34,13 +32,11 @@ public class PlayerController : NetworkBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _playerCollider = GetComponent<CircleCollider2D>();
-        
         _virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
 
         _virtualCamera.LookAt = transform;
         _virtualCamera.Follow = transform;
 
-        //GameSceneUI.Instance.InitializeController(LeftMove, RightMove, Jump, StopMove);
         GameSceneUI playerUI = Instantiate(playerUIPrefab).GetComponent<GameSceneUI>();
         playerUI.InitializeController(LeftMove, RightMove, Jump, StopMove);
     }
@@ -118,5 +114,39 @@ public class PlayerController : NetworkBehaviour
     {
         _animator.SetBool("Idle", _moveDirection == 0);
         _animator.SetBool("Run", _moveDirection != 0);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.transform.CompareTag("Coin"))
+        {
+            CmdCollectCoin(collision.gameObject);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.transform.CompareTag("Obstacle"))
+        {
+            CmdTakeDamage();
+        } 
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdTakeDamage()
+    {
+        TakeDamageRPC();
+    }
+
+    [ClientRpc]
+    private void TakeDamageRPC()
+    {
+        this.transform.position = Vector3.zero;
+    }
+   
+    [Command]
+    private void CmdCollectCoin(GameObject coin)
+    {
+        GameManager.Instance.CollectCoin(coin);
     }
 }

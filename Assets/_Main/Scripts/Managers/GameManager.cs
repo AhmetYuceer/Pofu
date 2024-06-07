@@ -1,13 +1,13 @@
-using Cinemachine;
 using Mirror;
-using System.Collections;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour 
+public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
+    
+    [SerializeField] private int totalCoins = 0;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -16,9 +16,16 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);   
+            Destroy(gameObject);
         }
     }
 
+    [Server]
+    public void CollectCoin(GameObject coin)
+    {
+        totalCoins++;
+        NetworkServer.Destroy(coin);
+    }
 
+      
 }

@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 6027614460108355296}
   m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,16 +108,14 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _moveSpeed: 4.5
-  _jumpForce: 5
+  playerUIPrefab: {fileID: 1379460308729827486, guid: 90ced2725a1b0084399421b7fad85d95, type: 3}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 192
-  _groundCheckRadius: 0.4
   _groundCheck: {fileID: 0}
-  _isGrounded: 0
-  _rb: {fileID: 0}
-  playerUIPrefab: {fileID: 1379460308729827486, guid: 90ced2725a1b0084399421b7fad85d95, type: 3}
+  _moveSpeed: 4.5
+  _jumpForce: 5
+  _groundCheckRadius: 0.4
 --- !u!50 &764952956933241221
 Rigidbody2D:
   serializedVersion: 4
