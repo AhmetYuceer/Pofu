@@ -62,7 +62,7 @@ public class CustomNetworkManager : NetworkManager
     private IEnumerator ReturnToLobby()
     {
         yield return new WaitForSeconds(2f);
-        ServerChangeScene("GameScene");
+        ServerChangeScene("Lobby");
     }
 
     private void LoadScene(SO_GameSettings gameSettings)

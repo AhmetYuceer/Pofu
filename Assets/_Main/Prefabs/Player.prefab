@@ -116,6 +116,8 @@ MonoBehaviour:
   _groundCheckRadius: 0.4
   _groundCheck: {fileID: 0}
   _isGrounded: 0
+  _rb: {fileID: 0}
+  playerUIPrefab: {fileID: 1379460308729827486, guid: 90ced2725a1b0084399421b7fad85d95, type: 3}
 --- !u!50 &764952956933241221
 Rigidbody2D:
   serializedVersion: 4

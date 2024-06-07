@@ -1,5 +1,7 @@
 using UnityEngine;
 using Mirror;
+using Cinemachine;
+using Unity.VisualScripting;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -10,27 +12,37 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _groundCheck;
 
     [SerializeField] private bool _isGrounded;
-    private Rigidbody2D _rb;
+    [SerializeField] private Rigidbody2D _rb;
     private Animator _animator;
     private float _moveDirection;
     private Collider2D _playerCollider;
 
+    private CinemachineVirtualCamera _virtualCamera;
+
+    public GameObject playerUIPrefab; 
+
     void Start()
     {
-
-        _groundCheck = transform.GetChild(0).transform;
-
-        _rb = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
-        _playerCollider = GetComponent<CircleCollider2D>();
-
         if (!isLocalPlayer)
         {
             this.enabled = false;
             return;
         }
 
-        GameSceneUI.Instance.InitializeController(LeftMove, RightMove, Jump, StopMove);
+        _groundCheck = transform.GetChild(0).transform;
+
+        _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+        _playerCollider = GetComponent<CircleCollider2D>();
+        
+        _virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
+
+        _virtualCamera.LookAt = transform;
+        _virtualCamera.Follow = transform;
+
+        //GameSceneUI.Instance.InitializeController(LeftMove, RightMove, Jump, StopMove);
+        GameSceneUI playerUI = Instantiate(playerUIPrefab).GetComponent<GameSceneUI>();
+        playerUI.InitializeController(LeftMove, RightMove, Jump, StopMove);
     }
      
     void FixedUpdate()
@@ -43,7 +55,7 @@ public class PlayerController : NetworkBehaviour
     {
         _moveDirection = 1;
         FlipCharacter();
-         AnimateCharacter();
+        AnimateCharacter();
     }
 
     private void LeftMove()
