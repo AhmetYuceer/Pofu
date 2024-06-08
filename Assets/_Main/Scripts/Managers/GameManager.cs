@@ -1,11 +1,13 @@
 using Mirror;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
-    
-    [SerializeField] private int totalCoins = 0;
+
+    private int _totalCoins = 0;
+    private List<PlayerController> players = new List<PlayerController>();
 
     private void Awake()
     {
@@ -19,13 +21,23 @@ public class GameManager : NetworkBehaviour
             Destroy(gameObject);
         }
     }
-
+     
     [Server]
     public void CollectCoin(GameObject coin)
     {
-        totalCoins++;
+        _totalCoins++;
         NetworkServer.Destroy(coin);
-    }
+    } 
 
-      
+    [Server]
+    public void EndGame(PlayerController player)
+    {
+        if (!players.Contains(player))
+        {
+            players.Add(player);
+
+            if (players.Count == 2)
+                StartCoroutine(CustomNetworkManager.Instance.ReturnMainMenu());
+        }
+    }
 }

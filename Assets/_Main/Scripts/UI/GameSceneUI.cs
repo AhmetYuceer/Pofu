@@ -4,20 +4,27 @@ using UnityEngine.UIElements;
 
 public class GameSceneUI : MonoBehaviour
 {
-    public static GameSceneUI Instance;
-
     private bool _isLeftButtonHeld, _isRightButtonHeld;
     private Action _onLeftAction, _onRightAction, _stopMoveAction;
- 
+
+    VisualElement _controller, _backController, _target;
+    Button _leftButton, _rightButton, _upButton, _backButton;
+    Label _targetText;
+
     public void InitializeController(Action OnLeft, Action OnRight, Action OnUp, Action stopAction)
     {
         UIDocument _uiDocument = GetComponent<UIDocument>();
 
-        VisualElement _controller = _uiDocument.rootVisualElement.Q<VisualElement>("Controller");
+        _controller = _uiDocument.rootVisualElement.Q<VisualElement>("Controller");
+        _backController = _uiDocument.rootVisualElement.Q<VisualElement>("BackController");
+        _target = _uiDocument.rootVisualElement.Q<VisualElement>("Target");
 
-        Button _leftButton = _controller.Q<Button>("Left");
-        Button _rightButton = _controller.Q<Button>("Right");
-        Button _upButton = _controller.Q<Button>("Up");
+        _leftButton = _controller.Q<Button>("Left");
+        _rightButton = _controller.Q<Button>("Right");
+        _upButton = _controller.Q<Button>("Up");
+        _backButton = _backController.Q<Button>("BackMainMenu");
+
+        _targetText = _target.Q<Label>("TargetText");
 
         _onLeftAction = OnLeft;
         _onRightAction = OnRight;
@@ -47,6 +54,11 @@ public class GameSceneUI : MonoBehaviour
             _stopMoveAction?.Invoke();
             _isRightButtonHeld = false;
         }, TrickleDown.TrickleDown);
+
+        _backButton.clicked += () =>
+        {
+            StartCoroutine(CustomNetworkManager.Instance.ReturnMainMenu());
+        };
     }
 
     private void Update()

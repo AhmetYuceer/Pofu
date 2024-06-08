@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 public class CustomNetworkManager : NetworkManager
 {
@@ -22,11 +23,18 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
+
+    public override void Start()
+    {
+        base.Start();
+        _currentPlayers = 0;
+    }
+
     public void CreateHost()
     {
         StartHost();
     }
-
+     
     public override void OnServerConnect(NetworkConnectionToClient conn)
     {
         base.OnServerConnect(conn);
@@ -57,6 +65,18 @@ public class CustomNetworkManager : NetworkManager
     {
         yield return new WaitForSeconds(2f);
         LoadScene(GameSettings.Instance.SOGameSettings);
+    }
+
+    public IEnumerator ReturnMainMenu()
+    {
+        yield return null;
+
+        if (NetworkServer.active && NetworkClient.isConnected)
+            StopHost();
+        else if (NetworkClient.isConnected)
+            StopClient();
+
+        SceneManager.LoadScene("MainMenu");
     }
 
     private IEnumerator ReturnToLobby()

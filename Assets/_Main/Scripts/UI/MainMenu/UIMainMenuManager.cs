@@ -18,7 +18,7 @@ public class UIMainMenuManager : MonoBehaviour
     private TextField _addressField;
     
     //Main Menu
-    private Button _showHostMenu, _showClientMenu, _showSettingsMenu, _exitButton;
+    private Button _showHostMenu, _showClientMenu, _exitButton;
 
     private void Start()
     {
@@ -42,7 +42,6 @@ public class UIMainMenuManager : MonoBehaviour
 
         _showHostMenu = _mainMenu.Q<Button>("HostMenuButton");
         _showClientMenu = _mainMenu.Q<Button>("ClientMenuButton");
-        _showSettingsMenu = _mainMenu.Q<Button>("SettingsMenuButton");
         _exitButton = _mainMenu.Q<Button>("ExitButton");
 
         _showHostMenu.clicked += () => 
@@ -57,13 +56,7 @@ public class UIMainMenuManager : MonoBehaviour
             _hostMenu.style.display = DisplayStyle.None;
             _clientMenu.style.display = DisplayStyle.Flex;
         };
-
-        _showSettingsMenu.clicked += () =>
-        {
-            //_showSettingsMenu.style.display = DisplayStyle.Flex;
-            //_mainMenu.style.display = DisplayStyle.None;
-        };
-        
+ 
         _exitButton.clicked += () =>
         {
             Application.Quit();

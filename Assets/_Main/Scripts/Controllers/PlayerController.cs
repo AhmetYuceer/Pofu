@@ -1,10 +1,10 @@
 using UnityEngine;
 using Mirror;
 using Cinemachine;
-using Unity.VisualScripting;
 
 public class PlayerController : NetworkBehaviour
 {
+    [SerializeField] private AudioClip _pickCoinClip;
     [SerializeField] private GameObject playerUIPrefab; 
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private Transform _groundCheck;
@@ -16,8 +16,11 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody2D _rb;
     private Animator _animator;
     private Collider2D _playerCollider;
+    private AudioSource _audioSource;
     private bool _isGrounded;
     private float _moveDirection;
+
+    public GameSceneUI PlayerUI;
 
     void Start()
     {
@@ -33,12 +36,13 @@ public class PlayerController : NetworkBehaviour
         _animator = GetComponent<Animator>();
         _playerCollider = GetComponent<CircleCollider2D>();
         _virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
+        _audioSource = GetComponent<AudioSource>();
 
         _virtualCamera.LookAt = transform;
         _virtualCamera.Follow = transform;
 
-        GameSceneUI playerUI = Instantiate(playerUIPrefab).GetComponent<GameSceneUI>();
-        playerUI.InitializeController(LeftMove, RightMove, Jump, StopMove);
+        PlayerUI = Instantiate(playerUIPrefab).GetComponent<GameSceneUI>();
+        PlayerUI.InitializeController(LeftMove, RightMove, Jump, StopMove);
     }
      
     void FixedUpdate()
@@ -86,13 +90,9 @@ public class PlayerController : NetworkBehaviour
     private void FlipCharacter()
     {
         if (_moveDirection > 0 && transform.localScale.x < 0)
-        {
             transform.localScale = new Vector3(1, 1, 1);
-        }
         else if (_moveDirection < 0 && transform.localScale.x > 0)
-        {
             transform.localScale = new Vector3(-1, 1, 1);
-        }
     }
     
     private void CheckGrounded()
@@ -120,16 +120,19 @@ public class PlayerController : NetworkBehaviour
     {
         if (collision.transform.CompareTag("Coin"))
         {
+            _audioSource.PlayOneShot(_pickCoinClip);
             CmdCollectCoin(collision.gameObject);
+        }
+        else if(collision.transform.CompareTag("End"))
+        {
+            EndPoint();
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Obstacle"))
-        {
             CmdTakeDamage();
-        } 
     }
 
     [Command(requiresAuthority = false)]
@@ -148,5 +151,11 @@ public class PlayerController : NetworkBehaviour
     private void CmdCollectCoin(GameObject coin)
     {
         GameManager.Instance.CollectCoin(coin);
+    }
+
+    [Command(requiresAuthority = false)]
+    private void EndPoint()
+    {
+        GameManager.Instance.EndGame(this);
     }
 }
