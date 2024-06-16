@@ -6,16 +6,12 @@ using UnityEngine.UIElements;
 public class UIMainMenuManager : MonoBehaviour
 {
     private UIDocument _uiDocument;
-    private VisualElement _hostMenu, _clientMenu, _mainMenu;
+    private VisualElement _hostMenu, _mainMenu;
 
     //Host Menu
     private Button _hostButton, _hostBackButton;
     private DropdownField _levelDropdown;
     private List<string> dropdownOptions = new List<string> { "Level 1", "Level 2", "Level 3", "Level 4"};
-
-    //Client Menu
-    private Button _clientButton, _clientBackButton;
-    private TextField _addressField;
     
     //Main Menu
     private Button _showHostMenu, _showClientMenu, _exitButton;
@@ -26,9 +22,7 @@ public class UIMainMenuManager : MonoBehaviour
 
         InitializeMainMenu();
         InitializeHostMenu();
-        InitializeClientMenu();
 
-        _clientMenu.style.display = DisplayStyle.None;
         _hostMenu.style.display = DisplayStyle.None;
         _mainMenu.style.display = DisplayStyle.Flex;
 
@@ -52,9 +46,7 @@ public class UIMainMenuManager : MonoBehaviour
 
         _showClientMenu.clicked += () =>
         {
-            _mainMenu.style.display = DisplayStyle.None;
-            _hostMenu.style.display = DisplayStyle.None;
-            _clientMenu.style.display = DisplayStyle.Flex;
+            CustomNetworkManager.Instance.JoinHost();
         };
  
         _exitButton.clicked += () =>
@@ -78,7 +70,6 @@ public class UIMainMenuManager : MonoBehaviour
 
         _hostBackButton.clicked += () =>
         {
-            _clientMenu.style.display = DisplayStyle.None;
             _hostMenu.style.display = DisplayStyle.None;
             _mainMenu.style.display = DisplayStyle.Flex;
         };
@@ -96,25 +87,4 @@ public class UIMainMenuManager : MonoBehaviour
         else if (evt.newValue == dropdownOptions[3])
             GameSettings.Instance.SOGameSettings.CurrentLevel = Level.Level4;
     }
-
-    private void InitializeClientMenu()
-    {
-        _clientMenu = _uiDocument.rootVisualElement.Q<VisualElement>("ClientMenu");
-
-        _addressField = _clientMenu.Q<TextField>("AddressField");
-        _clientButton = _clientMenu.Q<Button>("JoinLobby");
-        _clientBackButton = _clientMenu.Q<Button>("BackMenu");
-
-        _clientButton.clicked += () =>
-        {
-            CustomNetworkManager.Instance.JoinHost(_addressField.value);
-        };
-
-        _clientBackButton.clicked += () =>
-        {
-            _clientMenu.style.display = DisplayStyle.None;
-            _mainMenu.style.display = DisplayStyle.Flex;
-        };
-    }
-  
 }

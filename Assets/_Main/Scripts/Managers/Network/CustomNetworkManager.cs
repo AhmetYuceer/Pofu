@@ -2,10 +2,14 @@ using UnityEngine;
 using System.Collections;
 using Mirror;
 using UnityEngine.SceneManagement;
+using NetworkDiscoveryUnity;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 public class CustomNetworkManager : NetworkManager
 {
     public static CustomNetworkManager Instance;
+    public NetworkDiscovery networkDiscovery;
 
     public const int MAX_PLAYER_COUNT = 2;
     private int _currentPlayers = 0;
@@ -23,18 +27,54 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-
     public override void Start()
     {
         base.Start();
+        networkDiscovery = GetComponent<NetworkDiscovery>();
         _currentPlayers = 0;
     }
 
     public void CreateHost()
     {
-        StartHost();
+        GetLocalIPAddress();
     }
-     
+
+    public void JoinHost()
+    {
+        networkDiscovery.SendBroadcast();
+        networkDiscovery.onReceivedServerResponse.AddListener((NetworkDiscovery.DiscoveryInfo info) =>
+        {
+            Debug.Log(info.EndPoint.Address.ToString());
+            networkAddress = info.EndPoint.Address.ToString();
+            StartClient();
+        });
+    }
+
+    string GetLocalIPAddress()
+    {
+        string ipAddress = "";
+        foreach (var netInterface in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            foreach (var addrInfo in netInterface.GetIPProperties().UnicastAddresses)
+            {
+                if (addrInfo.Address.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ipAddress = addrInfo.Address.ToString();
+                    networkAddress = ipAddress;
+
+                    Debug.Log(networkAddress);
+                    networkDiscovery.EnsureServerIsInitialized();
+                    StartHost();
+                    break;
+                }
+            }
+            if (!string.IsNullOrEmpty(ipAddress))
+                break;
+        }
+        return ipAddress;
+    }
+
+
     public override void OnServerConnect(NetworkConnectionToClient conn)
     {
         base.OnServerConnect(conn);
@@ -49,16 +89,6 @@ public class CustomNetworkManager : NetworkManager
         base.OnServerDisconnect(conn);
         _currentPlayers--;
         StartCoroutine(ReturnToLobby());
-    }
-
-    public void JoinHost(string address)
-    {
-        if (string.IsNullOrEmpty(address))
-            networkAddress = "localhost";
-        else
-            networkAddress = address;
-
-        StartClient(); 
     }
 
     private IEnumerator WaitToStartGame()
